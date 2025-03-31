@@ -1,0 +1,44 @@
+aws:
+  access_key_id:
+  secret_access_key:
+  region:
+
+sources:
+  databricks: # driver
+    env: dev
+    dsn: >-
+      {{.User}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.Path}}/{{.WarehouseId}}
+    config:
+      database: dev_silver
+      host:
+      password:
+      path: sql/1.0/warehouses/
+      port: 443
+      schema: crm
+      user: token
+      warehouse_id:
+      tables:
+        - sf_account
+    model:
+      path: ./{{.Driver}}/{{.Database}}/{{.Schema}}
+      filename: ./{{.Table}}
+  postgres:
+    env: dev
+    dsn: >-
+      {{.Driver}}://{{.User}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.Database}}?search_path={{.Schema}}
+    config:
+      database: engineering
+      host:
+      password: conveys-kc6yeNLxqKqb6nzy
+      port: 5432
+      schema: digital_onboarding
+      user: ds_api_user
+      out_path: ./model/postgres/{{.Schema}}
+      secret: stc-ds-aurora-postgres-{{.Env}}/{{.User}} # secret: stc-ds-aurora-postgres-replicator-user-{{.Env}}
+      tables:
+        - sf_account
+    model:
+      outpath: ./orm/query
+      filename: ./{{.Table}}
+      pkgpath: ./orm/model
+
