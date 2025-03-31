@@ -19,6 +19,9 @@ sources:
       warehouse_id:
       tables:
         - sf_account
+  sqlserver:
+    env: dev
+
   postgres:
     env: dev
     dsn: >-

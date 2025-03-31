@@ -45,15 +45,15 @@ func (a *AppConfig) GenerateModel() (err error) {
 	})
 	g.UseDB(a.GormDB)
 	//
-	g.ApplyInterface(
-		func(orm.Filter) {},
-		g.GenerateModelAs(a.SchemaDotTable(), a.ModelName(), gen.WithMethod(orm.CommonMethod{})),
-	)
-	//
 	//g.ApplyInterface(
 	//	func(orm.Filter) {},
-	//	g.GenerateAllTable(gen.WithMethod(orm.CommonMethod{}))...,
+	//	g.GenerateModelAs(a.SchemaDotTable(), a.ModelName(), gen.WithMethod(orm.CommonMethod{})),
 	//)
+	//
+	g.ApplyInterface(
+		func(orm.Filter) {},
+		g.GenerateAllTable(gen.WithMethod(orm.CommonMethod{}))...,
+	)
 	//
 	g.Execute()
 	return

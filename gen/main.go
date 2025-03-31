@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	app, err := config.ConfigureApp(config.Databricks)
+	app, err := config.ConfigureApp(config.Postgres)
 	if err != nil {
 		fmt.Println(err)
 		return
