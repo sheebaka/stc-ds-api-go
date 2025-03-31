@@ -3,6 +3,7 @@ package config
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/ShamrockTrading/stc-ds-dataeng-go/core"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 	"path/filepath"
@@ -14,9 +15,12 @@ import (
 // ========================
 
 const (
-	Postgres  = "postgres"
-	DotNumber = "3134772"
+	Databricks = "databricks"
+	Postgres   = "postgres"
+	DotNumber  = "3134772"
 )
+
+var Drivers = core.StringSlice{Databricks, Postgres}
 
 var (
 	_, b, _, _  = runtime.Caller(0)
@@ -48,6 +52,6 @@ func ToTitleCase(in string) (out string) {
 }
 
 func PrettyPrint(v interface{}) {
-	j, _ := json.MarshalIndent(v, "", "  ")
-	fmt.Println(string(j))
+	x, _ := json.MarshalIndent(v, "", "  ")
+	fmt.Println(string(x))
 }

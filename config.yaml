@@ -7,21 +7,18 @@ sources:
   databricks: # driver
     env: dev
     dsn: >-
-      {{.User}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.Path}}/{{.WarehouseId}}
+      {{.User}}:{{.Password}}@{{.Host}}:{{.Port}}/{{.Path}}/{{.WarehouseId}}?catalog={{.Database}}&schema={{.Schema}}
     config:
       database: dev_silver
       host:
       password:
-      path: sql/1.0/warehouses/
+      path: sql/1.0/warehouses
       port: 443
       schema: crm
       user: token
       warehouse_id:
       tables:
         - sf_account
-    model:
-      path: ./{{.Driver}}/{{.Database}}/{{.Schema}}
-      filename: ./{{.Table}}
   postgres:
     env: dev
     dsn: >-
@@ -41,4 +38,6 @@ sources:
       outpath: ./orm/query
       filename: ./{{.Table}}
       pkgpath: ./orm/model
+      tablename: >- 
+        {{.Table}}
 

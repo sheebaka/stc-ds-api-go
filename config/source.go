@@ -6,19 +6,24 @@ import (
 	"database/sql"
 	"encoding/json"
 	"fmt"
+	"github.com/ShamrockTrading/stc-ds-dataeng-go/core"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/config"
 	"github.com/aws/aws-sdk-go-v2/service/secretsmanager"
+	"github.com/ilyakaznacheev/cleanenv"
+	"github.com/joho/godotenv"
 	"gopkg.in/yaml.v3"
+	"gorm.io/driver/mysql"
 	"gorm.io/driver/postgres"
 	"gorm.io/gen/helper"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"os"
 	"os/exec"
 	"regexp"
+	"slices"
 	"strings"
 	"text/template"
-
 	//
 	_ "github.com/databricks/databricks-sql-go"
 	_ "github.com/lib/pq"
@@ -28,7 +33,51 @@ func (x *SourceConfig) DSN() string {
 	return x.DataSourceName
 }
 
+func (x *SourceConfig) handleEnv() (err error) {
+	_ = godotenv.Load()
+	sm := core.Map[string]{}
+	pre := strings.ToUpper(x.Driver)
+	envVars := core.NewStringSlice(os.Environ()...).Sorted()
+	for _, env := range envVars {
+		ss := strings.Split(env, "=")
+		if strings.HasPrefix(env, pre) {
+			sm.Put(ss[0], ss[1])
+			continue
+		}
+		others := Drivers.RemoveItems(x.Driver)
+		unset := slices.ContainsFunc(others, func(s string) bool {
+			return strings.HasPrefix(env, strings.ToUpper(s))
+		})
+		if !unset {
+			continue
+		}
+		if err = os.Unsetenv(ss[0]); err != nil {
+			err = fmt.Errorf("unable to unset env %s", ss[0])
+			fmt.Println(err)
+		}
+		if os.Getenv(ss[0]) == "" {
+			fmt.Printf("Unset env %s\n", ss[0])
+		}
+	}
+	if !sm.IsEmpty() {
+		fmt.Printf("found the following environment variables for %s driver:\n", x.Driver)
+	}
+	for k, v := range sm.Iter() {
+		fmt.Printf("  ‣ %s = %s\n", k, v)
+		if strings.Contains(k, "HOST") {
+			_ = os.Setenv("HOST", v)
+		}
+	}
+	if err = cleanenv.ReadEnv(x); err != nil {
+		err = fmt.Errorf("unable to read env: %s", err)
+	}
+	return
+}
+
 func (x *SourceConfig) resolve() (err error) {
+	if err = x.handleEnv(); err != nil {
+		return
+	}
 	var t *template.Template
 	buf, err := yaml.Marshal(x)
 	if err != nil {
@@ -96,28 +145,71 @@ func (x *SourceConfig) ConfigGormDB() (err error) {
 		err = fmt.Errorf("failed to connect database: %w", err)
 		return
 	}
-	dialector := postgres.New(postgres.Config{
-		DriverName: x.Driver,
-		Conn:       db,
+	if x.Driver == Postgres {
+		x.Dialector = postgres.New(postgres.Config{
+			DriverName: x.Driver,
+			Conn:       db,
+		})
+	}
+	if x.Driver == Databricks {
+		cfg := mysql.Config{
+			DriverName: x.Driver,
+			Conn:       db,
+			DSN:        dsn,
+		}
+		x.Dialector = mysql.New(cfg)
+	}
+	x.GormDB, err = gorm.Open(x.Dialector, &gorm.Config{
+		NamingStrategy: x,
 	})
-	x.GormDB, err = gorm.Open(dialector, &gorm.Config{})
 	return
+}
+
+func (x *SourceConfig) JoinTableName(joinTable string) (s string) {
+	return
+}
+
+func (x *SourceConfig) RelationshipFKName(schema.Relationship) (s string) { return }
+
+func (x *SourceConfig) CheckerName(table string, column string) (s string) {
+	return
+}
+func (x *SourceConfig) ColumnName(table string, column string) (s string) {
+	return
+}
+func (x *SourceConfig) IndexName(table string, column string) (s string) {
+	return
+}
+func (x *SourceConfig) UniqueName(table string, column string) (s string) {
+	return
+}
+
+func (x *SourceConfig) SchemaDotTable() (s string) {
+	return fmt.Sprintf("%s.%s", x.Schema, x.Table())
 }
 
 func (x *SourceConfig) StructName() string {
 	return x.DriverConfig.Tables[0]
 }
 
-func (x *SourceConfig) TableName() string {
+func (x *SourceConfig) TableName(table string) string {
 	return x.DriverConfig.Tables[0]
+}
+
+func (x *SourceConfig) ModelName() string {
+	return ToTitleCase(x.TableName(""))
 }
 
 func (x *SourceConfig) Table() string {
 	return x.DriverConfig.Tables[0]
 }
 
+func (x *SourceConfig) SchemaName(schema string) string {
+	return x.Schema
+}
+
 func (x *SourceConfig) FileName() string {
-	return x.TableName()
+	return x.TableName("")
 }
 
 func (x *SourceConfig) ImportPkgPaths() (ss []string) {
