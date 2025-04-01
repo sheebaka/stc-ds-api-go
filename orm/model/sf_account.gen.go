@@ -252,8 +252,13 @@ type SfAccount struct {
 	ShippingGeocodeAccuracy                 string       `gorm:"column:ShippingGeocodeAccuracy" json:"ShippingGeocodeAccuracy"`
 }
 
-func (m SfAccount) GetId() string {
-	return m.Id
+func (m SfAccount) GetResponse() (out map[string]interface{}) {
+	out = make(map[string]interface{})
+	out["Name"] = m.Name
+	out["DOT_Number__c"] = m.DOT_Number__c
+	out["CRM_Account_Number__c"] = m.CRM_Account_Number__c
+	out["Id"] = m.Id
+	return
 }
 
 // TableName SfAccount's table name

@@ -51,7 +51,7 @@ func ToTitleCase(in string) (out string) {
 	return
 }
 
-func PrettyPrint(v interface{}) {
+func Pprint(v interface{}) {
 	x, _ := json.MarshalIndent(v, "", "  ")
 	fmt.Println(string(x))
 }
