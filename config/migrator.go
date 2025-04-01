@@ -12,14 +12,23 @@ import (
 //	GetTableIndex(schemaName string, tableName string) (indexes []gorm.Index, err error)
 //}
 
+func (m *DatabricksMigrator) CurrentSchema(stmt *gorm.Statement, table string) (string, string) {
+	if tables := strings.Split(table, `.`); len(tables) == 2 {
+		return tables[0], tables[1]
+	}
+	m.DB = m.DB.Table(table)
+	return m.Schema, table
+}
+
 // ColumnTypes column types return columnTypes,error
-func (x *SourceConfig) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
+func (m *DatabricksMigrator) ColumnTypes(value interface{}) ([]gorm.ColumnType, error) {
 	columnTypes := make([]gorm.ColumnType, 0)
-	err := x.RunWithValue(value, func(stmt *gorm.Statement) error {
+	err := m.Migrator.RunWithValue(value, func(stmt *gorm.Statement) error {
 		var (
-			currentDatabase, table = x.Database, x.TableName("")
-			columnTypeSQL          = "SELECT column_name, column_default, is_nullable = 'YES', data_type, character_maximum_length, column_type, column_key, extra, column_comment, numeric_precision, numeric_scale "
-			rows, err              = x.GormDB.Session(&gorm.Session{}).Table(table).Limit(1).Rows()
+			currentDatabase, table = m.CurrentSchema(stmt, stmt.Table)
+			columnTypeSQL          = "SELECT column_name, column_default, is_nullable = 'YES', data_type, full_data_type, character_maximum_length, numeric_precision, numeric_scale "
+			//"SELECT column_name, column_default, is_nullable = 'YES', data_type, character_maximum_length, column_type, column_key, extra, column_comment, numeric_precision, numeric_scale "
+			rows, err = m.GormDB.Session(&gorm.Session{}).Table(table).Limit(1).Rows()
 		)
 
 		if err != nil {
@@ -38,7 +47,7 @@ func (x *SourceConfig) ColumnTypes(value interface{}) ([]gorm.ColumnType, error)
 
 		columnTypeSQL += "FROM information_schema.columns WHERE table_schema = ? AND table_name = ? ORDER BY ORDINAL_POSITION"
 
-		columns, rowErr := x.GormDB.Table(table).Raw(columnTypeSQL, currentDatabase, table).Rows()
+		columns, rowErr := m.GormDB.Table(table).Raw(columnTypeSQL, currentDatabase, table).Rows()
 		if rowErr != nil {
 			return rowErr
 		}
@@ -52,7 +61,8 @@ func (x *SourceConfig) ColumnTypes(value interface{}) ([]gorm.ColumnType, error)
 				extraValue        sql.NullString
 				columnKey         sql.NullString
 				values            = []interface{}{
-					&column.NameValue, &column.DefaultValueValue, &column.NullableValue, &column.DataTypeValue, &column.LengthValue, &column.ColumnTypeValue, &columnKey, &extraValue, &column.CommentValue, &column.DecimalSizeValue, &column.ScaleValue,
+					&column.NameValue, &column.DefaultValueValue, &column.NullableValue, &column.DataTypeValue, &column.ColumnTypeValue, &column.LengthValue, &column.DecimalSizeValue, &column.ScaleValue,
+					// &column.NameValue, &column.DefaultValueValue, &column.NullableValue, &column.DataTypeValue, &column.LengthValue, &column.ColumnTypeValue, &columnKey, &extraValue, &column.CommentValue, &column.DecimalSizeValue, &column.ScaleValue,
 				}
 			)
 

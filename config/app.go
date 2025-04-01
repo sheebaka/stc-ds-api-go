@@ -37,23 +37,22 @@ func ConfigureApp(driverName string) (app *AppConfig, err error) {
 }
 
 func (a *AppConfig) GenerateModel() (err error) {
-	//
 	g := gen.NewGenerator(gen.Config{
 		OutPath:      JoinRoot(a.ModelOutPath),
 		ModelPkgPath: JoinRoot(a.ModelPkgPath),
-		Mode:         gen.WithoutContext | gen.WithQueryInterface | gen.WithDefaultQuery, // generate mode
+		Mode:         gen.WithoutContext | gen.WithQueryInterface | gen.WithDefaultQuery,
 	})
+	a.GormDB.Dialector = NewDatabricksDialector(a)
 	g.UseDB(a.GormDB)
+	g.ApplyInterface(
+		func(orm.Filter) {},
+		g.GenerateModelAs(a.Table(), a.ModelName(), gen.WithMethod(orm.CommonMethod{})),
+	)
 	//
 	//g.ApplyInterface(
 	//	func(orm.Filter) {},
-	//	g.GenerateModelAs(a.SchemaDotTable(), a.ModelName(), gen.WithMethod(orm.CommonMethod{})),
+	//	g.GenerateAllTable(gen.WithMethod(orm.CommonMethod{}))...,
 	//)
-	//
-	g.ApplyInterface(
-		func(orm.Filter) {},
-		g.GenerateAllTable(gen.WithMethod(orm.CommonMethod{}))...,
-	)
 	//
 	g.Execute()
 	return

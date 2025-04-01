@@ -140,24 +140,25 @@ func (x *SourceConfig) getSecret() (err error) {
 
 func (x *SourceConfig) ConfigGormDB() (err error) {
 	dsn := x.DSN()
-	db, err := sql.Open(x.Driver, dsn)
-	if err != nil {
-		err = fmt.Errorf("failed to connect database: %w", err)
-		return
-	}
 	if x.Driver == Postgres {
+		if x.SqlDB, err = sql.Open(x.Driver, dsn); err != nil {
+			return
+		}
 		x.Dialector = postgres.New(postgres.Config{
 			DriverName: x.Driver,
-			Conn:       db,
+			Conn:       x.SqlDB,
+			DSN:        dsn,
 		})
 	}
 	if x.Driver == Databricks {
-		cfg := mysql.Config{
-			DriverName: x.Driver,
-			Conn:       db,
-			DSN:        dsn,
+		if x.SqlDB, err = sql.Open(x.Driver, dsn); err != nil {
+			return
 		}
-		x.Dialector = mysql.New(cfg)
+		x.Dialector = mysql.New(mysql.Config{
+			DriverName: x.Driver,
+			Conn:       x.SqlDB,
+			DSN:        dsn,
+		})
 	}
 	x.GormDB, err = gorm.Open(x.Dialector, &gorm.Config{
 		NamingStrategy: x,
@@ -168,9 +169,7 @@ func (x *SourceConfig) ConfigGormDB() (err error) {
 func (x *SourceConfig) JoinTableName(joinTable string) (s string) {
 	return
 }
-
 func (x *SourceConfig) RelationshipFKName(schema.Relationship) (s string) { return }
-
 func (x *SourceConfig) CheckerName(table string, column string) (s string) {
 	return
 }
@@ -183,39 +182,30 @@ func (x *SourceConfig) IndexName(table string, column string) (s string) {
 func (x *SourceConfig) UniqueName(table string, column string) (s string) {
 	return
 }
-
 func (x *SourceConfig) SchemaDotTable() (s string) {
 	return fmt.Sprintf("%s.%s", x.Schema, x.Table())
 }
-
 func (x *SourceConfig) StructName() string {
 	return x.DriverConfig.Tables[0]
 }
-
 func (x *SourceConfig) TableName(table string) string {
 	return x.DriverConfig.Tables[0]
 }
-
 func (x *SourceConfig) ModelName() string {
 	return ToTitleCase(x.TableName(""))
 }
-
 func (x *SourceConfig) Table() string {
 	return x.DriverConfig.Tables[0]
 }
-
 func (x *SourceConfig) SchemaName(schema string) string {
-	return x.Schema
+	return schema
 }
-
 func (x *SourceConfig) FileName() string {
 	return x.TableName("")
 }
-
 func (x *SourceConfig) ImportPkgPaths() (ss []string) {
 	return
 }
-
 func (x *SourceConfig) Fields() (fs []helper.Field) {
 	return
 }

@@ -5,8 +5,10 @@ import (
 	"github.com/stc-ds-databricks-go/config"
 )
 
+const DriverName = config.Databricks
+
 func main() {
-	app, err := config.ConfigureApp(config.Postgres)
+	app, err := config.ConfigureApp(DriverName)
 	if err != nil {
 		fmt.Println(err)
 		return

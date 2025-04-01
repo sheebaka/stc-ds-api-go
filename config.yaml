@@ -19,6 +19,13 @@ sources:
       warehouse_id:
       tables:
         - sf_account
+    model:
+      outpath: ./orm/query
+      filename: ./{{.Table}}
+      pkgpath: ./orm/model
+      tablename: >-
+        {{.Table}}
+        
   sqlserver:
     env: dev
 

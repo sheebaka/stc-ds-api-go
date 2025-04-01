@@ -18,12 +18,12 @@ type Filter interface {
 }
 
 type CommonMethod struct {
-	ID         string
+	Id         string
 	DOTNumberC string
 }
 
 func (m CommonMethod) GetId() string {
-	return m.ID
+	return m.Id
 }
 
 func NewCommonMethod(id, dotNumberC string) *CommonMethod {
