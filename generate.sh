@@ -1,3 +1,3 @@
 #!/bin/bash
 
-go run ./gen/generate.go
+go run ./generate/main.go

@@ -30,6 +30,7 @@ import (
 )
 
 func (x *SourceConfig) DSN() string {
+	fmt.Printf(x.DataSourceName)
 	return x.DataSourceName
 }
 
@@ -186,16 +187,16 @@ func (x *SourceConfig) SchemaDotTable() (s string) {
 	return fmt.Sprintf("%s.%s", x.Schema, x.Table())
 }
 func (x *SourceConfig) StructName() string {
-	return x.DriverConfig.Tables[0]
+	return x.TableNames[0]
 }
 func (x *SourceConfig) TableName(table string) string {
-	return x.DriverConfig.Tables[0]
+	return x.TableNames[0]
 }
 func (x *SourceConfig) ModelName() string {
 	return ToTitleCase(x.TableName(""))
 }
 func (x *SourceConfig) Table() string {
-	return x.DriverConfig.Tables[0]
+	return x.TableNames[0]
 }
 func (x *SourceConfig) SchemaName(schema string) string {
 	return schema

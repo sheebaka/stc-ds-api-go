@@ -3,6 +3,14 @@ aws:
   secret_access_key:
   region:
 
+model:
+  outpath: ./orm/query
+  filename: ./{{.Table}}
+  pkgpath: ./orm/model
+  tables:
+    - sf_account
+    - sf_cadence_details
+
 sources:
   databricks: # driver
     env: dev
@@ -17,17 +25,6 @@ sources:
       schema: crm
       user: token
       warehouse_id:
-      tables:
-        - sf_account
-    model:
-      outpath: ./orm/query
-      filename: ./{{.Table}}
-      pkgpath: ./orm/model
-      tablename: >-
-        {{.Table}}
-        
-  sqlserver:
-    env: dev
 
   postgres:
     env: dev
@@ -42,12 +39,4 @@ sources:
       user: ds_api_user
       out_path: ./model/postgres/{{.Schema}}
       secret: stc-ds-aurora-postgres-{{.Env}}/{{.User}} # secret: stc-ds-aurora-postgres-replicator-user-{{.Env}}
-      tables:
-        - sf_account
-    model:
-      outpath: ./orm/query
-      filename: ./{{.Table}}
-      pkgpath: ./orm/model
-      tablename: >- 
-        {{.Table}}
 

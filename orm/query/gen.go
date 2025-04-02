@@ -16,34 +16,39 @@ import (
 )
 
 var (
-	Q         = new(Query)
-	SfAccount *sfAccount
+	Q                = new(Query)
+	SfAccount        *sfAccount
+	SfCadenceDetails *sfCadenceDetails
 )
 
 func SetDefault(db *gorm.DB, opts ...gen.DOOption) {
 	*Q = *Use(db, opts...)
 	SfAccount = &Q.SfAccount
+	SfCadenceDetails = &Q.SfCadenceDetails
 }
 
 func Use(db *gorm.DB, opts ...gen.DOOption) *Query {
 	return &Query{
-		db:        db,
-		SfAccount: newSfAccount(db, opts...),
+		db:               db,
+		SfAccount:        newSfAccount(db, opts...),
+		SfCadenceDetails: newSfCadenceDetails(db, opts...),
 	}
 }
 
 type Query struct {
 	db *gorm.DB
 
-	SfAccount sfAccount
+	SfAccount        sfAccount
+	SfCadenceDetails sfCadenceDetails
 }
 
 func (q *Query) Available() bool { return q.db != nil }
 
 func (q *Query) clone(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		SfAccount: q.SfAccount.clone(db),
+		db:               db,
+		SfAccount:        q.SfAccount.clone(db),
+		SfCadenceDetails: q.SfCadenceDetails.clone(db),
 	}
 }
 
@@ -57,18 +62,21 @@ func (q *Query) WriteDB() *Query {
 
 func (q *Query) ReplaceDB(db *gorm.DB) *Query {
 	return &Query{
-		db:        db,
-		SfAccount: q.SfAccount.replaceDB(db),
+		db:               db,
+		SfAccount:        q.SfAccount.replaceDB(db),
+		SfCadenceDetails: q.SfCadenceDetails.replaceDB(db),
 	}
 }
 
 type queryCtx struct {
-	SfAccount ISfAccountDo
+	SfAccount        ISfAccountDo
+	SfCadenceDetails ISfCadenceDetailsDo
 }
 
 func (q *Query) WithContext(ctx context.Context) *queryCtx {
 	return &queryCtx{
-		SfAccount: q.SfAccount.WithContext(ctx),
+		SfAccount:        q.SfAccount.WithContext(ctx),
+		SfCadenceDetails: q.SfCadenceDetails.WithContext(ctx),
 	}
 }
 

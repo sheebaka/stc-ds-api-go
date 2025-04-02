@@ -21,6 +21,7 @@ func ConfigureApp(driverName string) (app *AppConfig, err error) {
 				fmt.Println(err)
 			}
 		}
+		sourceConfig.Model = app.CommonModel
 		if err = sourceConfig.resolve(); err != nil {
 			err = fmt.Errorf("failed to configure database dsn: %v", err)
 			return

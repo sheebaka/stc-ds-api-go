@@ -186,7 +186,6 @@ func newSfAccount(db *gorm.DB, opts ...gen.DOOption) sfAccount {
 	_sfAccount.Deal_Age_at_Alert__c = field.NewFloat64(tableName, "Deal_Age_at_Alert__c")
 	_sfAccount.Prior_30_Day_Volume__c = field.NewFloat64(tableName, "Prior_30_Day_Volume__c")
 	_sfAccount.Cadence_Active__c = field.NewBool(tableName, "Cadence_Active__c")
-	_sfAccount.Cadence_Balance__c = field.NewFloat64(tableName, "Cadence_Balance__c")
 	_sfAccount.Cadence_First_Funding_Date__c = field.NewTime(tableName, "Cadence_First_Funding_Date__c")
 	_sfAccount.Cadence_Fuel_Card_Group_Code__c = field.NewString(tableName, "Cadence_Fuel_Card_Group_Code__c")
 	_sfAccount.Cadence_Fuel_Status_Group_Code__c = field.NewString(tableName, "Cadence_Fuel_Status_Group_Code__c")
@@ -212,6 +211,7 @@ func newSfAccount(db *gorm.DB, opts ...gen.DOOption) sfAccount {
 	_sfAccount.Bundle_Grace_Period_End_Date__c = field.NewTime(tableName, "Bundle_Grace_Period_End_Date__c")
 	_sfAccount.Bundle_LM_Gallons__c = field.NewFloat64(tableName, "Bundle_LM_Gallons__c")
 	_sfAccount.MRA_LM_Volume__c = field.NewFloat64(tableName, "MRA_LM_Volume__c")
+	_sfAccount.Cadence_Balance__c = field.NewFloat64(tableName, "Cadence_Balance__c")
 	_sfAccount.ReplayId = field.NewString(tableName, "ReplayId")
 	_sfAccount.EntityName = field.NewString(tableName, "EntityName")
 	_sfAccount.Id = field.NewString(tableName, "Id")
@@ -221,6 +221,9 @@ func newSfAccount(db *gorm.DB, opts ...gen.DOOption) sfAccount {
 	_sfAccount.hour = field.NewInt32(tableName, "hour")
 	_sfAccount._rescued_data = field.NewString(tableName, "_rescued_data")
 	_sfAccount.IsDeleted = field.NewBool(tableName, "IsDeleted")
+	_sfAccount.RTSEF_Customer_Status__c = field.NewString(tableName, "RTSEF_Customer_Status__c")
+	_sfAccount.RTSEF_Not_Eligible_Reason__c = field.NewString(tableName, "RTSEF_Not_Eligible_Reason__c")
+	_sfAccount.ProTransport_Modules__c = field.NewString(tableName, "ProTransport_Modules__c")
 	_sfAccount.MasterRecordId = field.NewString(tableName, "MasterRecordId")
 	_sfAccount.PhotoUrl = field.NewString(tableName, "PhotoUrl")
 	_sfAccount.SystemModstamp = field.NewTime(tableName, "SystemModstamp")
@@ -243,8 +246,6 @@ func newSfAccount(db *gorm.DB, opts ...gen.DOOption) sfAccount {
 	_sfAccount.LM_Partner_Gals__c = field.NewFloat64(tableName, "LM_Partner_Gals__c")
 	_sfAccount.MTD_Partner_Gals__c = field.NewFloat64(tableName, "MTD_Partner_Gals__c")
 	_sfAccount.YTD_Partner_Gals__c = field.NewFloat64(tableName, "YTD_Partner_Gals__c")
-	_sfAccount.RTSEF_Customer_Status__c = field.NewString(tableName, "RTSEF_Customer_Status__c")
-	_sfAccount.RTSEF_Not_Eligible_Reason__c = field.NewString(tableName, "RTSEF_Not_Eligible_Reason__c")
 	_sfAccount.BillingStreet = field.NewString(tableName, "BillingStreet")
 	_sfAccount.BillingCity = field.NewString(tableName, "BillingCity")
 	_sfAccount.BillingState = field.NewString(tableName, "BillingState")
@@ -433,7 +434,6 @@ type sfAccount struct {
 	Deal_Age_at_Alert__c                    field.Float64
 	Prior_30_Day_Volume__c                  field.Float64
 	Cadence_Active__c                       field.Bool
-	Cadence_Balance__c                      field.Float64
 	Cadence_First_Funding_Date__c           field.Time
 	Cadence_Fuel_Card_Group_Code__c         field.String
 	Cadence_Fuel_Status_Group_Code__c       field.String
@@ -459,6 +459,7 @@ type sfAccount struct {
 	Bundle_Grace_Period_End_Date__c         field.Time
 	Bundle_LM_Gallons__c                    field.Float64
 	MRA_LM_Volume__c                        field.Float64
+	Cadence_Balance__c                      field.Float64
 	ReplayId                                field.String
 	EntityName                              field.String
 	Id                                      field.String
@@ -468,6 +469,9 @@ type sfAccount struct {
 	hour                                    field.Int32
 	_rescued_data                           field.String
 	IsDeleted                               field.Bool
+	RTSEF_Customer_Status__c                field.String
+	RTSEF_Not_Eligible_Reason__c            field.String
+	ProTransport_Modules__c                 field.String
 	MasterRecordId                          field.String
 	PhotoUrl                                field.String
 	SystemModstamp                          field.Time
@@ -490,8 +494,6 @@ type sfAccount struct {
 	LM_Partner_Gals__c                      field.Float64
 	MTD_Partner_Gals__c                     field.Float64
 	YTD_Partner_Gals__c                     field.Float64
-	RTSEF_Customer_Status__c                field.String
-	RTSEF_Not_Eligible_Reason__c            field.String
 	BillingStreet                           field.String
 	BillingCity                             field.String
 	BillingState                            field.String
@@ -686,7 +688,6 @@ func (s *sfAccount) updateTableName(table string) *sfAccount {
 	s.Deal_Age_at_Alert__c = field.NewFloat64(table, "Deal_Age_at_Alert__c")
 	s.Prior_30_Day_Volume__c = field.NewFloat64(table, "Prior_30_Day_Volume__c")
 	s.Cadence_Active__c = field.NewBool(table, "Cadence_Active__c")
-	s.Cadence_Balance__c = field.NewFloat64(table, "Cadence_Balance__c")
 	s.Cadence_First_Funding_Date__c = field.NewTime(table, "Cadence_First_Funding_Date__c")
 	s.Cadence_Fuel_Card_Group_Code__c = field.NewString(table, "Cadence_Fuel_Card_Group_Code__c")
 	s.Cadence_Fuel_Status_Group_Code__c = field.NewString(table, "Cadence_Fuel_Status_Group_Code__c")
@@ -712,6 +713,7 @@ func (s *sfAccount) updateTableName(table string) *sfAccount {
 	s.Bundle_Grace_Period_End_Date__c = field.NewTime(table, "Bundle_Grace_Period_End_Date__c")
 	s.Bundle_LM_Gallons__c = field.NewFloat64(table, "Bundle_LM_Gallons__c")
 	s.MRA_LM_Volume__c = field.NewFloat64(table, "MRA_LM_Volume__c")
+	s.Cadence_Balance__c = field.NewFloat64(table, "Cadence_Balance__c")
 	s.ReplayId = field.NewString(table, "ReplayId")
 	s.EntityName = field.NewString(table, "EntityName")
 	s.Id = field.NewString(table, "Id")
@@ -721,6 +723,9 @@ func (s *sfAccount) updateTableName(table string) *sfAccount {
 	s.hour = field.NewInt32(table, "hour")
 	s._rescued_data = field.NewString(table, "_rescued_data")
 	s.IsDeleted = field.NewBool(table, "IsDeleted")
+	s.RTSEF_Customer_Status__c = field.NewString(table, "RTSEF_Customer_Status__c")
+	s.RTSEF_Not_Eligible_Reason__c = field.NewString(table, "RTSEF_Not_Eligible_Reason__c")
+	s.ProTransport_Modules__c = field.NewString(table, "ProTransport_Modules__c")
 	s.MasterRecordId = field.NewString(table, "MasterRecordId")
 	s.PhotoUrl = field.NewString(table, "PhotoUrl")
 	s.SystemModstamp = field.NewTime(table, "SystemModstamp")
@@ -743,8 +748,6 @@ func (s *sfAccount) updateTableName(table string) *sfAccount {
 	s.LM_Partner_Gals__c = field.NewFloat64(table, "LM_Partner_Gals__c")
 	s.MTD_Partner_Gals__c = field.NewFloat64(table, "MTD_Partner_Gals__c")
 	s.YTD_Partner_Gals__c = field.NewFloat64(table, "YTD_Partner_Gals__c")
-	s.RTSEF_Customer_Status__c = field.NewString(table, "RTSEF_Customer_Status__c")
-	s.RTSEF_Not_Eligible_Reason__c = field.NewString(table, "RTSEF_Not_Eligible_Reason__c")
 	s.BillingStreet = field.NewString(table, "BillingStreet")
 	s.BillingCity = field.NewString(table, "BillingCity")
 	s.BillingState = field.NewString(table, "BillingState")
@@ -781,7 +784,7 @@ func (s *sfAccount) GetFieldByName(fieldName string) (field.OrderExpr, bool) {
 }
 
 func (s *sfAccount) fillFieldMap() {
-	s.fieldMap = make(map[string]field.Expr, 237)
+	s.fieldMap = make(map[string]field.Expr, 238)
 	s.fieldMap["ChangeEventHeader"] = s.ChangeEventHeader
 	s.fieldMap["Name"] = s.Name
 	s.fieldMap["Type"] = s.Type
@@ -940,7 +943,6 @@ func (s *sfAccount) fillFieldMap() {
 	s.fieldMap["Deal_Age_at_Alert__c"] = s.Deal_Age_at_Alert__c
 	s.fieldMap["Prior_30_Day_Volume__c"] = s.Prior_30_Day_Volume__c
 	s.fieldMap["Cadence_Active__c"] = s.Cadence_Active__c
-	s.fieldMap["Cadence_Balance__c"] = s.Cadence_Balance__c
 	s.fieldMap["Cadence_First_Funding_Date__c"] = s.Cadence_First_Funding_Date__c
 	s.fieldMap["Cadence_Fuel_Card_Group_Code__c"] = s.Cadence_Fuel_Card_Group_Code__c
 	s.fieldMap["Cadence_Fuel_Status_Group_Code__c"] = s.Cadence_Fuel_Status_Group_Code__c
@@ -966,6 +968,7 @@ func (s *sfAccount) fillFieldMap() {
 	s.fieldMap["Bundle_Grace_Period_End_Date__c"] = s.Bundle_Grace_Period_End_Date__c
 	s.fieldMap["Bundle_LM_Gallons__c"] = s.Bundle_LM_Gallons__c
 	s.fieldMap["MRA_LM_Volume__c"] = s.MRA_LM_Volume__c
+	s.fieldMap["Cadence_Balance__c"] = s.Cadence_Balance__c
 	s.fieldMap["ReplayId"] = s.ReplayId
 	s.fieldMap["EntityName"] = s.EntityName
 	s.fieldMap["Id"] = s.Id
@@ -975,6 +978,9 @@ func (s *sfAccount) fillFieldMap() {
 	s.fieldMap["hour"] = s.hour
 	s.fieldMap["_rescued_data"] = s._rescued_data
 	s.fieldMap["IsDeleted"] = s.IsDeleted
+	s.fieldMap["RTSEF_Customer_Status__c"] = s.RTSEF_Customer_Status__c
+	s.fieldMap["RTSEF_Not_Eligible_Reason__c"] = s.RTSEF_Not_Eligible_Reason__c
+	s.fieldMap["ProTransport_Modules__c"] = s.ProTransport_Modules__c
 	s.fieldMap["MasterRecordId"] = s.MasterRecordId
 	s.fieldMap["PhotoUrl"] = s.PhotoUrl
 	s.fieldMap["SystemModstamp"] = s.SystemModstamp
@@ -997,8 +1003,6 @@ func (s *sfAccount) fillFieldMap() {
 	s.fieldMap["LM_Partner_Gals__c"] = s.LM_Partner_Gals__c
 	s.fieldMap["MTD_Partner_Gals__c"] = s.MTD_Partner_Gals__c
 	s.fieldMap["YTD_Partner_Gals__c"] = s.YTD_Partner_Gals__c
-	s.fieldMap["RTSEF_Customer_Status__c"] = s.RTSEF_Customer_Status__c
-	s.fieldMap["RTSEF_Not_Eligible_Reason__c"] = s.RTSEF_Not_Eligible_Reason__c
 	s.fieldMap["BillingStreet"] = s.BillingStreet
 	s.fieldMap["BillingCity"] = s.BillingCity
 	s.fieldMap["BillingState"] = s.BillingState

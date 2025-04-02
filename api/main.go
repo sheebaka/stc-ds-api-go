@@ -3,10 +3,9 @@ package main
 import (
 	"database/sql"
 	"fmt"
-	_ "github.com/databricks/databricks-sql-go"
 	"github.com/gin-gonic/gin"
 	"github.com/stc-ds-databricks-go/config"
-	"github.com/stc-ds-databricks-go/orm/query"
+	"github.com/stc-ds-databricks-go/orm/common"
 	"net/http"
 )
 
@@ -47,7 +46,7 @@ func Router(app *config.AppConfig) (err error) {
 
 func Account(a *config.AppConfig, c *gin.Context) {
 	dotNumber := c.Query("dotnumber")
-	account, err := query.FilterWithColumn(a.GormDB, "DOT_Number__c", dotNumber)
+	account, err := common.FilterByDotNumber(a.GormDB, dotNumber)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

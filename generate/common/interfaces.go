@@ -20,32 +20,15 @@ type Filter interface {
 //	FilterWithColumn(column string, value string) (Identifier, error)
 //}
 
-type CommonMethod struct {
-	Id                    string
-	DOT_Number__c         string
-	CRM_Account_Number__c string
-	Name                  string
-}
-
-func (m CommonMethod) GetId() string {
-	return m.Id
-}
-
-func (m CommonMethod) GetDOTNumber() string {
-	return m.DOT_Number__c
-}
-
-func (m CommonMethod) GetResponse() (out map[string]interface{}) {
-	out = make(map[string]interface{})
-	out["Name"] = m.Name
-	out["DOT_Number__c"] = m.DOT_Number__c
-	out["CRM_Account_Number__c"] = m.CRM_Account_Number__c
-	out["Id"] = m.Id
-	return
-}
-
 type Identifier interface {
 	GetId() string
 	GetDOTNumber() string
 	GetResponse() map[string]interface{}
 }
+
+//
+//g.ApplyInterface(
+//	func(orm.Filter) {},
+//	g.GenerateAllTable(gen.WithMethod(orm.CommonMethod{}))...,
+//)
+//

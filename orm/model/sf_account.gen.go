@@ -171,7 +171,6 @@ type SfAccount struct {
 	Deal_Age_at_Alert__c                    float64      `gorm:"column:Deal_Age_at_Alert__c" json:"Deal_Age_at_Alert__c"`
 	Prior_30_Day_Volume__c                  float64      `gorm:"column:Prior_30_Day_Volume__c" json:"Prior_30_Day_Volume__c"`
 	Cadence_Active__c                       bool         `gorm:"column:Cadence_Active__c" json:"Cadence_Active__c"`
-	Cadence_Balance__c                      float64      `gorm:"column:Cadence_Balance__c" json:"Cadence_Balance__c"`
 	Cadence_First_Funding_Date__c           time.Time    `gorm:"column:Cadence_First_Funding_Date__c" json:"Cadence_First_Funding_Date__c"`
 	Cadence_Fuel_Card_Group_Code__c         string       `gorm:"column:Cadence_Fuel_Card_Group_Code__c" json:"Cadence_Fuel_Card_Group_Code__c"`
 	Cadence_Fuel_Status_Group_Code__c       string       `gorm:"column:Cadence_Fuel_Status_Group_Code__c" json:"Cadence_Fuel_Status_Group_Code__c"`
@@ -197,6 +196,7 @@ type SfAccount struct {
 	Bundle_Grace_Period_End_Date__c         time.Time    `gorm:"column:Bundle_Grace_Period_End_Date__c" json:"Bundle_Grace_Period_End_Date__c"`
 	Bundle_LM_Gallons__c                    float64      `gorm:"column:Bundle_LM_Gallons__c" json:"Bundle_LM_Gallons__c"`
 	MRA_LM_Volume__c                        float64      `gorm:"column:MRA_LM_Volume__c" json:"MRA_LM_Volume__c"`
+	Cadence_Balance__c                      float64      `gorm:"column:Cadence_Balance__c" json:"Cadence_Balance__c"`
 	ReplayId                                string       `gorm:"column:ReplayId" json:"ReplayId"`
 	EntityName                              string       `gorm:"column:EntityName" json:"EntityName"`
 	Id                                      string       `gorm:"column:Id" json:"Id"`
@@ -206,6 +206,9 @@ type SfAccount struct {
 	hour                                    int32        `gorm:"column:hour" json:"hour"`
 	_rescued_data                           string       `gorm:"column:_rescued_data" json:"_rescued_data"`
 	IsDeleted                               bool         `gorm:"column:IsDeleted" json:"IsDeleted"`
+	RTSEF_Customer_Status__c                string       `gorm:"column:RTSEF_Customer_Status__c" json:"RTSEF_Customer_Status__c"`
+	RTSEF_Not_Eligible_Reason__c            string       `gorm:"column:RTSEF_Not_Eligible_Reason__c" json:"RTSEF_Not_Eligible_Reason__c"`
+	ProTransport_Modules__c                 string       `gorm:"column:ProTransport_Modules__c" json:"ProTransport_Modules__c"`
 	MasterRecordId                          string       `gorm:"column:MasterRecordId" json:"MasterRecordId"`
 	PhotoUrl                                string       `gorm:"column:PhotoUrl" json:"PhotoUrl"`
 	SystemModstamp                          time.Time    `gorm:"column:SystemModstamp" json:"SystemModstamp"`
@@ -228,8 +231,6 @@ type SfAccount struct {
 	LM_Partner_Gals__c                      float64      `gorm:"column:LM_Partner_Gals__c" json:"LM_Partner_Gals__c"`
 	MTD_Partner_Gals__c                     float64      `gorm:"column:MTD_Partner_Gals__c" json:"MTD_Partner_Gals__c"`
 	YTD_Partner_Gals__c                     float64      `gorm:"column:YTD_Partner_Gals__c" json:"YTD_Partner_Gals__c"`
-	RTSEF_Customer_Status__c                string       `gorm:"column:RTSEF_Customer_Status__c" json:"RTSEF_Customer_Status__c"`
-	RTSEF_Not_Eligible_Reason__c            string       `gorm:"column:RTSEF_Not_Eligible_Reason__c" json:"RTSEF_Not_Eligible_Reason__c"`
 	BillingStreet                           string       `gorm:"column:BillingStreet" json:"BillingStreet"`
 	BillingCity                             string       `gorm:"column:BillingCity" json:"BillingCity"`
 	BillingState                            string       `gorm:"column:BillingState" json:"BillingState"`
@@ -252,13 +253,8 @@ type SfAccount struct {
 	ShippingGeocodeAccuracy                 string       `gorm:"column:ShippingGeocodeAccuracy" json:"ShippingGeocodeAccuracy"`
 }
 
-func (m SfAccount) GetResponse() (out map[string]interface{}) {
-	out = make(map[string]interface{})
-	out["Name"] = m.Name
-	out["DOT_Number__c"] = m.DOT_Number__c
-	out["CRM_Account_Number__c"] = m.CRM_Account_Number__c
-	out["Id"] = m.Id
-	return
+func (m SfAccount) GetId() string {
+	return m.Id
 }
 
 // TableName SfAccount's table name
