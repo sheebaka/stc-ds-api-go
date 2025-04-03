@@ -2,6 +2,7 @@ package config
 
 import (
 	"database/sql"
+	"fmt"
 	"github.com/ShamrockTrading/stc-ds-dataeng-go/core"
 	"gorm.io/gorm"
 	"gorm.io/gorm/migrator"
@@ -10,9 +11,18 @@ import (
 // ========================
 
 type AppConfig struct {
+	ApiConfig     `yaml:"api"`
 	DataSources   `yaml:"sources"`
 	*SourceConfig `yaml:"-"`
 	CommonModel   Model `yaml:"model"`
+}
+
+type ApiConfig struct {
+	Port int `yaml:"port"`
+}
+
+func (a *ApiConfig) GetPort() string {
+	return fmt.Sprintf(":%d", a.Port)
 }
 
 type DataSources struct {
