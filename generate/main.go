@@ -21,7 +21,7 @@ func GenerateModel(a *config.AppConfig) (err error) {
 	//
 	models := core.NewSlice[any]()
 	for _, table := range a.TableNames {
-		model := g.GenerateModelAs(table, config.ToTitleCase(table), gen.WithMethod(common.SharedMethods{}))
+		model := g.GenerateModelAs(table, config.ToTitleCase(table), gen.WithMethod(common.SharedAccount{}))
 		models = models.AppendPtr(model)
 	}
 	//

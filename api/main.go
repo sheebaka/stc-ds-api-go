@@ -40,16 +40,24 @@ func Router(app *config.AppConfig) (err error) {
 	carrier.GET("/account", func(c *gin.Context) {
 		Account(app, c)
 	})
-	err = router.Run()
+	err = router.Run(":5555")
 	return
 }
 
 func Account(a *config.AppConfig, c *gin.Context) {
+	fmt.Println(c.FullPath())
 	dotNumber := c.Query("dotnumber")
-	account, err := common.FilterByDotNumber(a.GormDB, dotNumber)
+	results, err := common.FilterByDotNumber(a.GormDB, dotNumber)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
 	}
-	c.JSON(http.StatusOK, account)
+	var result *common.Result
+	if len(results) == 1 {
+		result = results[0]
+		if result.Active__c == "true" {
+			result.Active__c = "active"
+		}
+	}
+	c.JSON(http.StatusOK, result)
 }
