@@ -10,5 +10,3 @@ type SharedAccount struct {
 type CustomerStatus struct {
 	Factoring string `json:"factoring"`
 }
-
-func (sa SharedAccount) String() string {}

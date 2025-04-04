@@ -60,10 +60,6 @@ type SfCadenceDetails struct {
 	file_name                               string       `gorm:"column:file_name" json:"file_name"`
 }
 
-func (m SfCadenceDetails) GetId() string {
-	return m.Id
-}
-
 // TableName SfCadenceDetails's table name
 func (*SfCadenceDetails) TableName() string {
 	return TableNameSfCadenceDetails
