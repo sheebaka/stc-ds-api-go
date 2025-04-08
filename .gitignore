@@ -2,3 +2,5 @@
 .env
 config.yaml
 /api/api
+/scratch.out
+/.DS_Store
