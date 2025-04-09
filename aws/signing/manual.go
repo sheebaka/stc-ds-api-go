@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/ShamrockTrading/stc-ds-dataeng-go/core"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -12,9 +13,10 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/spf13/viper"
 	localConfig "github.com/stc-ds-databricks-go/config"
+	"io"
+	"net/http"
 	"net/url"
 	"os"
-	"time"
 )
 
 func NewSignerConfig() (signerConfig *SignerConfig, err error) {
@@ -24,9 +26,11 @@ func NewSignerConfig() (signerConfig *SignerConfig, err error) {
 		return
 	}
 	err = signerConfig.RetrieveCredentials()
-	currentTime := time.Now().UTC()
-	signerConfig.amzdate = currentTime.Format("20060102T150405Z")
-	signerConfig.datestamp = currentTime.Format("20060102")
+	//currentTime := time.Now().UTC()
+	//signerConfig.amzdate = currentTime.Format("20060102T150405Z")
+	//signerConfig.datestamp = currentTime.Format("20060102")
+	signerConfig.amzdate = "20250408T215151Z"
+	signerConfig.datestamp = "20250408"
 	return
 }
 
@@ -36,6 +40,7 @@ type SignerConfig struct {
 	aws.Credentials
 	amzdate   string
 	datestamp string
+	Headers   *core.Map[string]
 }
 
 func (c *SignerConfig) ReadConfig() (err error) {
@@ -95,13 +100,13 @@ func getSignatureKey(secretKey, credentialDate, region, service string) (signing
 	return
 }
 
-func (c *SignerConfig) BuildRequestAuthHeaders(payloadHash, algorithm, credentialScope, signedHeaders, signature string) (headers core.Map[string]) {
+func (c *SignerConfig) BuildRequestAuthHeaders(payloadHash, algorithm, credentialScope, signedHeaders, signature string) (headers *core.Map[string]) {
 	authorizationHeader := fmt.Sprintf("%s Credential=%s/%s, SignedHeaders=%s, Signature=%s", algorithm, c.AccessKeyID, credentialScope, signedHeaders, signature)
-	headers = core.Map[string]{
-		"Authorization":        authorizationHeader,
-		"x-amz-date":           c.amzdate,
-		"x-amz-content-sha256": payloadHash,
-	}
+	headers = core.NewMap[string]()
+	headers.Put("Authorization", authorizationHeader)
+	headers.Put("x-amz-date", c.amzdate)
+	headers.Put("x-amz-content-sha256", payloadHash)
+	//
 	if c.Credentials.SessionToken != "" {
 		headers.Put("x-amz-security-token", c.SessionToken)
 	}
@@ -132,16 +137,16 @@ func (c *SignerConfig) GetCanonicalRequest() (canonicalRequest, payloadHash, sig
 	}
 	ss := core.NewStringSlice()
 	for _, key := range canonicalHeadersMap.KeysSorted() {
-		ss = ss.AppendPtr(fmt.Sprintf("%s:%s", key, canonicalHeadersMap.Get(key)))
+		ss = ss.AppendPtr(fmt.Sprintf("%s:%s\n", key, canonicalHeadersMap.Get(key)))
 	}
-	canonicalHeaders := ss.Join("\n")
+	canonicalHeaders := ss.Join("")
 	signedHeaders = canonicalHeadersMap.Keys().Sorted().Join(";")
 	endpointURl, err := url.Parse(c.GetString("api.vpc_endpoint_dns"))
 	if err != nil {
 		return
 	}
 	if endpointURl.Path == "" {
-		endpointURl.Path = "/development/"
+		endpointURl.Path = c.GetString("api.api_url_path")
 	}
 	payloadHash = hashAndEncode()
 	canonicalUri := endpointURl.Path
@@ -149,3 +154,66 @@ func (c *SignerConfig) GetCanonicalRequest() (canonicalRequest, payloadHash, sig
 	canonicalRequest = canonicalRequestSS.Join("\n")
 	return
 }
+
+func (c *SignerConfig) DoRequest() (err error) {
+	uri := c.GetString("api.vpc_endpoint_dns")
+	uri = fmt.Sprintf("%s%s", uri, c.GetString("api.api_url_path"))
+	fmt.Printf("Creating new request with: %s\n", uri)
+	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	req.Host = c.GetString("api.api_gateway_invoke_dns")
+	fmt.Println(req.Host)
+	response, err := http.DefaultClient.Do(req)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	buf, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	resMap := core.NewMap[any]()
+	err = json.Unmarshal(buf, &resMap)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	fmt.Println("Response:")
+	fmt.Println(core.PrettyStruct(resMap))
+	return
+}
+
+//res, err := grequests.Get(uri, &grequests.RequestOptions{
+//	Data:                 nil,
+//	Params:               nil,
+//	QueryStruct:          nil,
+//	Files:                nil,
+//	JSON:                 nil,
+//	XML:                  nil,
+//	Headers:              *c.Headers,
+//	InsecureSkipVerify:   false,
+//	DisableCompression:   false,
+//	UserAgent:            "",
+//	Host:                 c.GetString("api.api_gateway_invoke_dns"),
+//	Auth:                 nil,
+//	IsAjax:               false,
+//	Cookies:              nil,
+//	UseCookieJar:         false,
+//	Proxies:              nil,
+//	TLSHandshakeTimeout:  0,
+//	DialTimeout:          0,
+//	DialKeepAlive:        0,
+//	RequestTimeout:       0,
+//	HTTPClient:           nil,
+//	SensitiveHTTPHeaders: nil,
+//	RedirectLimit:        0,
+//	RequestBody:          nil,
+//	CookieJar:            nil,
+//	Context:              nil,
+//	BeforeRequest:        nil,
+//	LocalAddr:            nil,
+//})

@@ -2,10 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/ShamrockTrading/stc-ds-dataeng-go/core"
 	"github.com/stc-ds-databricks-go/aws/signing"
-	"io"
-	"net/http"
 )
 
 func main() {
@@ -14,29 +11,42 @@ func main() {
 		fmt.Println(err)
 		return
 	}
-	//config.Sign()
-	headers := core.Map[string]{"Host": config.GetString("api.api_gateway_invoke_dns")}
+	fmt.Printf("AccessKeyId: %s\n", config.AccessKeyID)
+	fmt.Printf("SecretAccessKey: %s\n", config.SecretAccessKey)
+	fmt.Printf("SessionToken: %s\n", config.SessionToken)
+	fmt.Println("========================")
+	// CanonicalRequest
 	canonicalRequest, payloadHash, signedHeaders := config.GetCanonicalRequest()
+	fmt.Printf("canonicalRequest: %s\n", canonicalRequest)
+	fmt.Println("========================")
+	fmt.Printf("payloadHash: %s\n", payloadHash)
+	fmt.Println("========================")
+	fmt.Printf("signedHeaders: %s\n", signedHeaders)
+	fmt.Println("========================")
+	// GetStringToSign
 	stringToSign, algorithm, credentialScope := config.GetStringToSign(canonicalRequest)
+	fmt.Printf("stringToSign: %s\n", stringToSign)
+	fmt.Println("========================")
+	fmt.Printf("algorithm: %s\n", algorithm)
+	fmt.Println("========================")
+	fmt.Printf("credentialScope: %s\n", credentialScope)
+	fmt.Println("========================")
+	// CalculateSignature
 	signature := config.CalculateSignature(stringToSign)
+	fmt.Printf("signature: %s\n", signature)
+	fmt.Println("========================")
+	// BuildRequestAuthHeaders
 	authHeaders := config.BuildRequestAuthHeaders(payloadHash, algorithm, credentialScope, signedHeaders, signature)
-	headers.Add(authHeaders)
-	fmt.Println(headers)
-	uri := config.GetString("api.vpc_endpoint_dns")
-	req, err := http.NewRequest(http.MethodGet, uri, nil)
+	fmt.Printf("authHeaders: %v\n", authHeaders)
+	fmt.Println("========================")
+	// Add original Host header back
+	authHeaders.Put("Host", config.GetString("api.api_gateway_invoke_dns"))
+	fmt.Printf("authHeaders: %v\n", authHeaders)
+	fmt.Println("========================")
+	// DoRequest
+	config.Headers = authHeaders
+	err = config.DoRequest()
 	if err != nil {
 		fmt.Println(err)
-		return
 	}
-	for k, v := range headers {
-		req.Header.Add(k, v)
-	}
-	fmt.Println(core.PrettyStruct(headers))
-	res, err := http.DefaultClient.Do(req)
-	if err != nil {
-		fmt.Println(err)
-		return
-	}
-	b, err := io.ReadAll(res.Body)
-	fmt.Println(string(b))
 }

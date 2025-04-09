@@ -4,3 +4,4 @@ config.yaml
 /api/api
 /scratch.json
 /.DS_Store
+/zz__scratch/
